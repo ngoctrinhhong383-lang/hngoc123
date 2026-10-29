@@ -32,6 +32,17 @@ body{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:17px;line
 .slide.cover .lead{max-width:1100px;margin:.3em 0 1em;font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;font-size:clamp(1.05rem,2.2vw,1.55rem);line-height:1.65}
 .slide.cover .date{margin:.5em 0}.slide.cover .navhint{margin-top:1em;line-height:1.6}
 @media(max-width:760px){.slide.cover{padding-top:36px;min-height:calc(100vh - 70px)}.slide.cover h1{font-size:clamp(2.8rem,13vw,4.8rem)}.slide.cover .lead{font-size:1.05rem}}
+
+/* FINAL TYPOGRAPHY HOTFIX: avoid clipped Vietnamese diacritics */
+html{font-synthesis:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body,body *:not(.slide h1):not(.slide h2){font-family:Arial,"Noto Sans",sans-serif!important;font-kerning:normal!important;letter-spacing:normal}
+.slide h1,.slide h2{font-family:"Noto Serif",Georgia,"Times New Roman",serif!important;font-synthesis:none;line-height:1.22!important;padding-top:.08em;padding-bottom:.08em;overflow:visible;text-shadow:none}
+.slide p,.slide li,.slide .lead,.slide .date,.slide .navhint,.slide .eyebrow,.slide .card,.slide .quote{font-family:Arial,"Noto Sans",sans-serif!important;line-height:1.85!important;overflow:visible;word-break:normal;overflow-wrap:break-word}
+.slide.cover{padding-top:clamp(55px,9vh,105px)!important;overflow:visible!important}
+.slide.cover h1{font-size:clamp(3rem,7vw,6.3rem)!important;line-height:1.18!important;margin:.15em 0 .4em!important;padding:.08em 0 .12em!important}
+.slide.cover .lead{font-size:clamp(1rem,1.7vw,1.35rem)!important;line-height:1.9!important;max-width:1000px}
+.slide .slideNo{font-family:Arial,sans-serif!important}
+@media(max-width:760px){.slide.cover{padding-top:45px!important}.slide.cover h1{font-size:clamp(2.7rem,12vw,4.5rem)!important;line-height:1.18!important}.slide p,.slide li{line-height:1.8!important}}
 </style></head>
 <body>
 <header><div class="brand">SỬ KÝ VIỆT NAM · HỒNG NGỌC</div><div class="controls"><button id="prev" aria-label="Trang trước">←</button><span class="counter" id="counter">1 / 38</span><button id="next" aria-label="Trang sau">→</button><button id="full">⛶</button></div></header><div class="progress"><div class="bar" id="bar"></div></div>
