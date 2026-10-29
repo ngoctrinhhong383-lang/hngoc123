@@ -13,6 +13,16 @@ main{padding-top:80px}.slide{min-height:calc(100vh - 80px);padding:5vh 7vw 9vh;d
 @media(max-width:760px){header{padding:9px 12px;gap:6px}.brand{font-size:11px}.controls{gap:4px}.controls button{padding:7px;font-size:12px}.counter{min-width:48px;font-size:12px}main{padding-top:70px}.slide{padding:35px 22px 60px;min-height:calc(100vh - 70px)}.layout{grid-template-columns:1fr;gap:20px}.visual img{max-height:35vh}.cards{grid-template-columns:1fr}.slideNo{bottom:10px}footer{font-size:10px;flex-wrap:wrap}body:before{inset:3px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
 @media print{header,.progress,footer{display:none!important}body{background:white}body:before{display:none}main{padding:0}.slide{display:flex!important;min-height:0;page-break-after:always;box-shadow:none;border:1px solid #d3bd88;animation:none;padding:20mm}.visual img{max-height:80mm}}
+
+/* CONCEPT VARIATIONS: each few slides gets its own visual rhythm */
+.slide:nth-of-type(5n+2){background:linear-gradient(115deg,#fff9e9 0 58%,#e8d4a8 58% 100%)}
+.slide:nth-of-type(5n+2) .layout{grid-template-columns:1.2fr .8fr}.slide:nth-of-type(5n+2) .visual img{height:48vh;max-height:520px;border-radius:48% 48% 3px 3px;border-width:9px}
+.slide:nth-of-type(5n+3){background:#4a241e;color:#fff4dc;border:8px double #c8a45b}.slide:nth-of-type(5n+3) h2,.slide:nth-of-type(5n+3) .eyebrow{color:#f0cc7d}.slide:nth-of-type(5n+3) .lead{color:#f7e8c8}.slide:nth-of-type(5n+3) .card{background:#60372d;color:#fff4dc;border-color:#bd8b36}.slide:nth-of-type(5n+3) .card b{color:#f0cc7d}.slide:nth-of-type(5n+3) .visual img{filter:sepia(.22);border-color:#c8a45b}
+.slide:nth-of-type(5n+4){background:linear-gradient(135deg,#f3e4bf,#fffaf0 52%,#e8d4a8)}.slide:nth-of-type(5n+4) .layout{grid-template-columns:.82fr 1.18fr}.slide:nth-of-type(5n+4) .visual{order:-1}.slide:nth-of-type(5n+4) .visual img{height:55vh;max-height:560px;object-fit:cover;border:12px solid #fffaf0;box-shadow:12px 12px 0 #c6a15a}
+.slide:nth-of-type(5n+5){background:#fff9e9;border-left:12px solid #9e2632}.slide:nth-of-type(5n+5) .cards{grid-template-columns:repeat(2,minmax(0,1fr))}.slide:nth-of-type(5n+5) .card{border-left:0;border-top:4px solid #9e2632;box-shadow:5px 5px 0 #e7d5ad}.slide:nth-of-type(5n+5) .visual img{border:0;box-shadow:12px 12px 0 #e4d0a4}
+.slide.chapter{background:linear-gradient(110deg,#f6edda 0 60%,#e5d0a1 60% 100%);border:10px double #c3a15d}.slide.chapter:after{content:"✦";position:absolute;right:8vw;top:8vh;font-size:clamp(90px,18vw,230px);color:#9e26321c}.slide.chapter h2{font-size:clamp(3rem,8vw,7rem);max-width:900px}.slide.cover{background:linear-gradient(100deg,#fff8e7eF 0 57%,#ead5a6dd 57%),url('https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1800&q=85') center/cover}.slide.cover h1{font-size:clamp(4rem,10vw,9rem);letter-spacing:-.04em}.slide.cover .date{display:inline-block;background:#9e2632;color:#fff5dc;padding:9px 18px;letter-spacing:.12em;font:700 12px system-ui,sans-serif;width:max-content}
+.visual{min-width:0}.visual img{background:#e7d7b4;min-height:180px;object-fit:cover}.visual img.image-fallback{object-fit:cover;filter:sepia(.15)}
+@media(max-width:760px){.slide:nth-of-type(5n+2),.slide:nth-of-type(5n+3),.slide:nth-of-type(5n+4),.slide:nth-of-type(5n+5),.slide.chapter{background:#fff8e8;color:var(--ink);border:1px solid #d3bd88;border-left:5px solid #9e2632}.slide:nth-of-type(5n+3) h2,.slide:nth-of-type(5n+3) .eyebrow,.slide:nth-of-type(5n+3) .lead{color:var(--red)}.slide:nth-of-type(5n+3) .card{background:#fff9e9;color:var(--ink)}.slide:nth-of-type(5n+3) .card b{color:var(--red)}.slide:nth-of-type(5n+4) .visual{order:0}.slide:nth-of-type(5n+2) .visual img,.slide:nth-of-type(5n+4) .visual img{height:auto;max-height:35vh;border-radius:0}.slide.cover{background:#fff8e8}.slide.cover h1{font-size:clamp(3rem,15vw,5rem)}}
 </style></head>
 <body>
 <header><div class="brand">SỬ KÝ VIỆT NAM · HỒNG NGỌC</div><div class="controls"><button id="prev" aria-label="Trang trước">←</button><span class="counter" id="counter">1 / 38</span><button id="next" aria-label="Trang sau">→</button><button id="full">⛶</button></div></header><div class="progress"><div class="bar" id="bar"></div></div>
@@ -63,4 +73,15 @@ document.getElementById('prev').onclick=()=>show(i-1);document.getElementById('n
 document.getElementById('full').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
 document.addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1)}if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();show(i-1)}if(e.key.toLowerCase()==='f')document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();if(e.key==='Home')show(0);if(e.key==='End')show(slides.length-1)});
 if(location.hash.startsWith('#slide-'))show(Number(location.hash.replace('#slide-',''))-1);
+
+// Robust image recovery: broken remote links never leave an empty frame.
+document.querySelectorAll('.visual img').forEach((img)=>{
+ img.loading='lazy'; img.decoding='async';
+ img.addEventListener('error',function(){
+  const alt=(this.alt||'').toLowerCase();
+  const fallback=alt.includes('trống đồng')?'https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?auto=format&fit=crop&w=1000&q=80':alt.includes('sông')?'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1000&q=80':'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1000&q=80';
+  if(!this.dataset.retried){this.dataset.retried='1';this.src=fallback;this.classList.add('image-fallback')}
+  else {this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#e8d7b2,#fff8e8)';}
+ });
+});
 </script></body></html>
