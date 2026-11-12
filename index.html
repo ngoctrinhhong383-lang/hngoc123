@@ -129,7 +129,7 @@ body{font-size:17px;line-height:1.75}
 </main><footer><span>HỒNG NGỌC · BÀI THUYẾT TRÌNH LỊCH SỬ VIỆT NAM</span><span>← → điều hướng · F toàn màn hình</span></footer>
 <script>
 const slides=[...document.querySelectorAll('.slide')];let i=0;
-function show(n){if(typeof stopNarration==='function')stopNarration();i=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle('active',k===i));document.getElementById('counter').textContent=(i+1)+' / '+slides.length;document.getElementById('bar').style.width=((i+1)/slides.length*100)+'%';history.replaceState(null,'','#slide-'+(i+1));if(typeof updateNarrationPanel==='function'&&slides[i].querySelector('.narration-panel'))updateNarrationPanel();}
+function show(n,fromAuto=false){if(typeof stopNarration==='function'&&!fromAuto)stopNarration();i=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle('active',k===i));document.getElementById('counter').textContent=(i+1)+' / '+slides.length;document.getElementById('bar').style.width=((i+1)/slides.length*100)+'%';history.replaceState(null,'','#slide-'+(i+1));if(typeof updateNarrationPanel==='function'&&slides[i].querySelector('.narration-panel'))updateNarrationPanel();}
 document.getElementById('prev').onclick=()=>show(i-1);document.getElementById('next').onclick=()=>show(i+1);
 document.getElementById('full').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
 document.addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1)}if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();show(i-1)}if(e.key.toLowerCase()==='f')document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();if(e.key==='Home')show(0);if(e.key==='End')show(slides.length-1)});
@@ -140,6 +140,7 @@ if(location.hash.startsWith('#slide-'))show(Number(location.hash.replace('#slide
 // Slide-by-slide narration: builds a readable presenter script from the current slide's own content.
 const narrationButton=document.getElementById('narrate');
 let activeUtterance=null;
+let autoPresentation=false;
 function cleanNarrationText(value){return (value||'').replace(/\\s+/g,' ').replace(/\\s+([,.;!?])/g,'$1').trim();}
 function buildNarration(slide){
  const title=slide.querySelector('h1,h2')?.innerText||'Nội dung slide';
@@ -158,26 +159,26 @@ function buildNarration(slide){
  parts.push('Qua slide này, chúng ta có thể thấy những sự kiện và nhân vật lịch sử đã góp phần tạo nên tiến trình phát triển của Việt Nam.');
  return parts.join(' ');
 }
-function stopNarration(){if('speechSynthesis' in window){window.speechSynthesis.cancel();}activeUtterance=null;document.querySelectorAll('.narration-status').forEach(el=>el.textContent='Đã dừng thuyết minh.');}
+function stopNarration(){autoPresentation=false;if('speechSynthesis' in window){window.speechSynthesis.cancel();}activeUtterance=null;document.querySelectorAll('.narration-status').forEach(el=>el.textContent='Đã dừng thuyết minh.');}
 function updateNarrationPanel(){
  const slide=slides[i];if(!slide)return;
  let panel=slide.querySelector('.narration-panel');
- if(!panel){panel=document.createElement('section');panel.className='narration-panel';panel.innerHTML='<div class="narration-heading">🎙 Thuyết minh slide này</div><p class="narration-text"></p><div class="narration-actions"><button type="button" class="narration-play">▶ Nghe thuyết minh</button><button type="button" class="narration-pause">Ⅱ Tạm dừng</button><button type="button" class="narration-stop">■ Dừng</button><span class="narration-status" aria-live="polite">Có thể đọc nội dung hoặc bấm nghe thuyết minh.</span></div>';slide.appendChild(panel);
- panel.querySelector('.narration-play').addEventListener('click',()=>speakCurrentSlide());
+ if(!panel){panel=document.createElement('section');panel.className='narration-panel';panel.innerHTML='<div class="narration-heading">🎙 Thuyết minh slide này</div><p class="narration-text"></p><div class="narration-actions"><button type="button" class="narration-play">▶ Bắt đầu thuyết minh tự chạy</button><button type="button" class="narration-pause">Ⅱ Tạm dừng</button><button type="button" class="narration-stop">■ Dừng</button><span class="narration-status" aria-live="polite">Có thể đọc nội dung hoặc bấm nghe thuyết minh.</span></div>';slide.appendChild(panel);
+ panel.querySelector('.narration-play').addEventListener('click',()=>{autoPresentation=true;speakCurrentSlide(true);});
  panel.querySelector('.narration-pause').addEventListener('click',()=>{if('speechSynthesis'in window){window.speechSynthesis.pause();panel.querySelector('.narration-status').textContent='Đã tạm dừng.';}});
  panel.querySelector('.narration-stop').addEventListener('click',stopNarration);
  }
  panel.querySelector('.narration-text').textContent=buildNarration(slide);
  panel.querySelector('.narration-status').textContent='Có thể đọc nội dung hoặc bấm nghe thuyết minh.';
 }
-function speakCurrentSlide(){
+function speakCurrentSlide(autoRun=false){
  if(!('speechSynthesis'in window)){const status=slides[i]?.querySelector('.narration-status');if(status)status.textContent='Trình duyệt này chưa hỗ trợ đọc thuyết minh tự động.';return;}
- stopNarration();
+ if(!autoRun)stopNarration();else{window.speechSynthesis.cancel();activeUtterance=null;}
  const panel=slides[i]?.querySelector('.narration-panel');if(!panel)return;
  const utterance=new SpeechSynthesisUtterance(buildNarration(slides[i]));
  utterance.lang='vi-VN';utterance.rate=0.95;utterance.pitch=1;activeUtterance=utterance;
  utterance.onstart=()=>panel.querySelector('.narration-status').textContent='Đang đọc thuyết minh…';
- utterance.onend=()=>{panel.querySelector('.narration-status').textContent='Đã đọc xong slide này.';activeUtterance=null;};
+ utterance.onend=()=>{panel.querySelector('.narration-status').textContent='Đã đọc xong slide này.';activeUtterance=null;if(autoRun){if(i<slides.length-1){show(i+1,true);setTimeout(()=>speakCurrentSlide(true),500);}else{autoPresentation=false;panel.querySelector('.narration-status').textContent='🎉 Đã thuyết minh hết toàn bộ slide.';}}};
  utterance.onerror=()=>{panel.querySelector('.narration-status').textContent='Không thể phát âm thanh. M có thể đọc phần thuyết minh hiển thị bên trên.';activeUtterance=null;};
  window.speechSynthesis.speak(utterance);
 }
