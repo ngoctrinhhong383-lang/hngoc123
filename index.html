@@ -141,6 +141,27 @@ if(location.hash.startsWith('#slide-'))show(Number(location.hash.replace('#slide
 const narrationButton=document.getElementById('narrate');
 let activeUtterance=null;
 let autoPresentation=false;
+let vietnameseVoices=[];
+function refreshVietnameseVoices(){
+ if(!('speechSynthesis'in window))return;
+ const all=window.speechSynthesis.getVoices();
+ vietnameseVoices=all.filter(v=>/^vi([_-]|$)/i.test(v.lang)||/vietnamese|tiếng việt/i.test(v.name));
+ document.querySelectorAll('.narration-voice').forEach(select=>{
+  const previous=select.value;
+  select.innerHTML='';
+  const auto=document.createElement('option');auto.value='';auto.textContent='Giọng tự nhiên nhất có sẵn';select.appendChild(auto);
+  vietnameseVoices.forEach(v=>{const option=document.createElement('option');option.value=v.name;option.textContent=v.name+' · '+v.lang;select.appendChild(option);});
+  if(vietnameseVoices.some(v=>v.name===previous))select.value=previous;
+  else{
+   const preferred=[...vietnameseVoices].sort((a,b)=>{
+    const score=v=>((/natural|online/i.test(v.name)?4:0)+(/google/i.test(v.name)?3:0)+(/microsoft/i.test(v.name)?2:0)+(v.localService?0:1));
+    return score(b)-score(a);
+   })[0];
+   if(preferred)select.value=preferred.name;
+  }
+ });
+}
+if('speechSynthesis'in window){refreshVietnameseVoices();window.speechSynthesis.addEventListener?.('voiceschanged',refreshVietnameseVoices);}
 function cleanNarrationText(value){return (value||'').replace(/\\s+/g,' ').replace(/\\s+([,.;!?])/g,'$1').trim();}
 const narrationOpeners=[
 "Thưa thầy cô và các bạn, lịch sử không chỉ nằm lại trong những trang sách. Lịch sử là ký ức của dân tộc, là hành trình để mỗi chúng ta hiểu mình đến từ đâu và vì sao cần trân trọng hiện tại.",
@@ -199,7 +220,7 @@ function stopNarration(){autoPresentation=false;const topButton=document.getElem
 function updateNarrationPanel(){
  const slide=slides[i];if(!slide)return;
  let panel=slide.querySelector('.narration-panel');
- if(!panel){panel=document.createElement('section');panel.className='narration-panel';panel.innerHTML='<div class="narration-heading">🎙 Thuyết minh slide này</div><p class="narration-text"></p><div class="narration-actions"><button type="button" class="narration-play">▶ Bắt đầu thuyết minh tự chạy</button><button type="button" class="narration-pause">Ⅱ Tạm dừng</button><button type="button" class="narration-stop">■ Dừng</button><span class="narration-status" aria-live="polite">Có thể đọc nội dung hoặc bấm nghe thuyết minh.</span></div>';slide.appendChild(panel);
+ if(!panel){panel=document.createElement('section');panel.className='narration-panel';panel.innerHTML='<div class="narration-heading">🎙 Thuyết minh slide này</div><p class="narration-text"></p><div class="narration-actions"><label style="font:600 .85rem system-ui,sans-serif">Chọn giọng đọc <select class="narration-voice" aria-label="Chọn giọng đọc tiếng Việt" style="max-width:240px;padding:7px;border:1px solid #c9ac70;border-radius:6px;background:#fffdf8"><option value="">Giọng tự nhiên nhất có sẵn</option></select></label><button type="button" class="narration-play">▶ Bắt đầu thuyết minh tự chạy</button><button type="button" class="narration-pause">Ⅱ Tạm dừng</button><button type="button" class="narration-stop">■ Dừng</button><span class="narration-status" aria-live="polite">Chọn giọng đọc tiếng Việt có sẵn trên thiết bị để nghe tự nhiên hơn.</span></div>';slide.appendChild(panel);
  panel.querySelector('.narration-play').addEventListener('click',()=>{autoPresentation=true;speakCurrentSlide(true);});
  panel.querySelector('.narration-pause').addEventListener('click',()=>{if('speechSynthesis'in window){window.speechSynthesis.pause();panel.querySelector('.narration-status').textContent='Đã tạm dừng.';}});
  panel.querySelector('.narration-stop').addEventListener('click',stopNarration);
@@ -211,8 +232,17 @@ function speakCurrentSlide(autoRun=false){
  if(!('speechSynthesis'in window)){const status=slides[i]?.querySelector('.narration-status');if(status)status.textContent='Trình duyệt này chưa hỗ trợ đọc thuyết minh tự động.';return;}
  if(!autoRun)stopNarration();else{window.speechSynthesis.cancel();activeUtterance=null;}
  const panel=slides[i]?.querySelector('.narration-panel');if(!panel)return;
+ refreshVietnameseVoices();
  const utterance=new SpeechSynthesisUtterance(buildNarration(slides[i]));
- utterance.lang='vi-VN';utterance.rate=0.95;utterance.pitch=1;activeUtterance=utterance;
+ utterance.lang='vi-VN';utterance.rate=0.93;utterance.pitch=1;
+ const voiceSelect=panel.querySelector('.narration-voice');
+ const selectedVoice=voiceSelect?.value;
+ const voice=selectedVoice?vietnameseVoices.find(v=>v.name===selectedVoice):[...vietnameseVoices].sort((a,b)=>{
+  const score=v=>((/natural|online/i.test(v.name)?4:0)+(/google/i.test(v.name)?3:0)+(/microsoft/i.test(v.name)?2:0)+(v.localService?0:1));
+  return score(b)-score(a);
+ })[0];
+ if(voice)utterance.voice=voice;
+ activeUtterance=utterance;
  utterance.onstart=()=>panel.querySelector('.narration-status').textContent='Đang đọc thuyết minh…';
  utterance.onend=()=>{panel.querySelector('.narration-status').textContent='Đã đọc xong slide này.';activeUtterance=null;if(autoRun){if(i<slides.length-1){show(i+1,true);setTimeout(()=>speakCurrentSlide(true),500);}else{autoPresentation=false;panel.querySelector('.narration-status').textContent='🎉 Đã thuyết minh hết toàn bộ slide.';}}};
  utterance.onerror=(event)=>{activeUtterance=null;if(event&&event.error==='canceled')return;panel.querySelector('.narration-status').textContent='Không thể phát âm thanh. M có thể đọc phần thuyết minh hiển thị bên trên.';autoPresentation=false;};
