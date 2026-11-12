@@ -142,12 +142,48 @@ const narrationButton=document.getElementById('narrate');
 let activeUtterance=null;
 let autoPresentation=false;
 function cleanNarrationText(value){return (value||'').replace(/\\s+/g,' ').replace(/\\s+([,.;!?])/g,'$1').trim();}
+const narrationOpeners=[
+"Thưa thầy cô và các bạn, lịch sử không chỉ nằm lại trong những trang sách. Lịch sử là ký ức của dân tộc, là hành trình để mỗi chúng ta hiểu mình đến từ đâu và vì sao cần trân trọng hiện tại.",
+"Nhìn lại những chặng đường đã qua, ta thấy lịch sử Việt Nam là dòng chảy liên tục của dựng nước, giữ nước và phát triển. Mỗi thời đại đều để lại một dấu ấn riêng.",
+"Trước khi có những nhà nước đầu tiên, cha ông ta đã bền bỉ thích nghi với thiên nhiên, lao động và sáng tạo. Chính từ những cộng đồng ấy, nền móng của lịch sử dân tộc dần hình thành.",
+"Từ bàn tay và trí tuệ của người Việt cổ, một nền văn hóa rực rỡ đã được tạo dựng. Những di vật còn lại hôm nay là bằng chứng sống động về sức sáng tạo của tổ tiên.",
+"Văn Lang mở ra một chương quan trọng trong buổi đầu dựng nước. Hình ảnh các Vua Hùng nhắc chúng ta nhớ về cội nguồn và truyền thống gắn bó của cộng đồng người Việt.",
+"Thành Cổ Loa cho thấy cha ông ta đã biết tổ chức xây dựng và bảo vệ đất nước từ rất sớm. Câu chuyện An Dương Vương cũng nhắc mỗi thế hệ về giá trị của cảnh giác và trách nhiệm với non sông.",
+"Trong nhiều thế kỷ bị đặt dưới ách đô hộ, người Việt vẫn gìn giữ tiếng nói, phong tục và ý thức cộng đồng. Khát vọng tự chủ chưa bao giờ tắt.",
+"Năm 40, Hai Bà Trưng phất cờ khởi nghĩa, mở đầu một cuộc đấu tranh mạnh mẽ giành lại quyền tự chủ. Tinh thần ấy trở thành biểu tượng về lòng can đảm và ý chí của người Việt.",
+"Đến thế kỷ thứ III, Bà Triệu tiếp tục khẳng định khát vọng tự do. Tên tuổi của bà được lưu truyền như biểu tượng của ý chí không khuất phục.",
+"Từ những người đứng đầu bản địa, quyền tự chủ từng bước được khôi phục. Mỗi bước tiến ấy đều mở rộng con đường để dân tộc tiến tới độc lập.",
+"Chiến thắng Bạch Đằng năm 938 đánh dấu bước ngoặt lớn: chấm dứt thời kỳ Bắc thuộc kéo dài và mở ra kỷ nguyên độc lập lâu dài. Đây là minh chứng cho trí tuệ, bản lĩnh và sức mạnh đoàn kết.",
+"Đinh Bộ Lĩnh thống nhất đất nước, xây dựng nhà nước Đại Cồ Việt. Sau những năm biến động, nền độc lập được củng cố bằng một chính quyền thống nhất.",
+"Trước thử thách từ bên ngoài, nhà Tiền Lê đã tổ chức kháng chiến bảo vệ nền độc lập non trẻ. Giữ nước luôn là trách nhiệm nối tiếp qua từng triều đại.",
+"Năm 1010, quyết định dời đô ra Thăng Long mở ra tầm nhìn phát triển lâu dài. Một kinh đô mới trở thành trung tâm chính trị, văn hóa của quốc gia Đại Việt.",
+"Cuộc kháng chiến chống Tống cho thấy Đại Việt không chỉ có lòng quyết tâm mà còn có tầm nhìn chiến lược. Tư tưởng độc lập được khẳng định mạnh mẽ qua lời thơ Nam quốc sơn hà.",
+"Ba lần kháng chiến chống Mông–Nguyên là thử thách lớn đối với Đại Việt. Bằng sự đồng lòng của triều đình, quân đội và nhân dân, dân tộc đã bảo vệ được bờ cõi.",
+"Không chỉ giữ vững non sông, Đại Việt còn phát triển giáo dục, văn học, nghệ thuật và nhiều giá trị văn hóa. Một đất nước mạnh cần cả sức mạnh bảo vệ và sức sống tinh thần.",
+"Qua những biến động và khủng hoảng, khát vọng ổn định và phục hồi đất nước vẫn được tiếp nối. Lịch sử cho thấy sức sống của dân tộc được tạo nên từ khả năng đứng dậy và đổi mới.",
+"Thời Lê Thánh Tông ghi dấu một giai đoạn củng cố bộ máy nhà nước và phát triển nhiều lĩnh vực. Những thành tựu ấy phản ánh nỗ lực xây dựng quốc gia vững mạnh.",
+"Những cuộc phân tranh kéo dài khiến đất nước bị chia cắt và đời sống nhân dân chịu nhiều ảnh hưởng. Nhìn lại giai đoạn này giúp ta hiểu sâu sắc giá trị của hòa bình và thống nhất.",
+"Phong trào Tây Sơn xuất phát từ khát vọng thay đổi trước những bất công và chia cắt. Phong trào đã tạo nên bước ngoặt lớn trong lịch sử cuối thế kỷ XVIII.",
+"Chiến thắng Ngọc Hồi–Đống Đa mùa xuân năm 1789 là dấu son trong lịch sử chống ngoại xâm. Tài thao lược của Quang Trung cùng sức mạnh của nghĩa quân đã bảo vệ nền độc lập.",
+"Triều Nguyễn để lại nhiều dấu ấn về tổ chức nhà nước, văn hóa và kiến trúc, trong đó có quần thể kinh đô Huế. Di sản ấy giúp chúng ta hiểu thêm một giai đoạn phức tạp của lịch sử.",
+"Khi thực dân Pháp nổ súng xâm lược, đất nước bước vào thời kỳ đấu tranh đầy thử thách. Nhân dân Việt Nam đã liên tục đứng lên bảo vệ quê hương bằng nhiều con đường khác nhau.",
+"Đầu thế kỷ XX, nhiều nhà yêu nước tìm kiếm con đường mới để giành độc lập. Dù lựa chọn phương pháp khác nhau, họ đều cho thấy khát vọng tự do và tương lai của dân tộc.",
+"Những nhà yêu nước đầu thế kỷ XX đã để lại dấu ấn bằng tư tưởng, hoạt động và sự dấn thân. Tìm hiểu họ giúp ta thấy hành trình tìm đường cứu nước không hề đơn giản.",
+"Nguyễn Ái Quốc gắn với bước chuyển quan trọng trong hành trình tìm đường giải phóng dân tộc. Sự ra đời của Đảng Cộng sản Việt Nam năm 1930 mở ra một giai đoạn mới của cách mạng Việt Nam.",
+"Cách mạng tháng Tám năm 1945 đưa nhân dân Việt Nam đến thắng lợi giành chính quyền và khai sinh nước Việt Nam Dân chủ Cộng hòa. Một trang sử mới được mở ra bằng sức mạnh của toàn dân.",
+"Từ lời kêu gọi Toàn quốc kháng chiến đến chiến thắng Điện Biên Phủ năm 1954 là hành trình bền bỉ của một dân tộc quyết tâm bảo vệ độc lập. Chiến thắng ấy có ý nghĩa lớn đối với Việt Nam và thế giới.",
+"Cuộc chiến tranh kéo dài diễn ra trong bối cảnh quốc tế phức tạp, để lại nhiều hệ quả sâu sắc. Nhìn lại giai đoạn này cần sự tôn trọng sự thật lịch sử và những mất mát của con người, đồng thời trân trọng giá trị của hòa bình.",
+"Năm 1975, đất nước thống nhất, non sông nối liền một dải. Đó là dấu mốc lớn khép lại chiến tranh và mở ra nhiệm vụ hàn gắn, tái thiết, xây dựng đất nước.",
+"Từ công cuộc Đổi mới, Việt Nam từng bước chuyển mình và mở rộng hội nhập. Chặng đường phía trước thuộc về thế hệ hôm nay: học tập, sáng tạo, sống có trách nhiệm và góp phần xây dựng quê hương."
+];
 function buildNarration(slide){
- const title=slide.querySelector('h1,h2')?.innerText||'Nội dung slide';
- const eyebrow=slide.querySelector('.eyebrow')?.innerText||'';
+ const title=cleanNarrationText(slide.querySelector('h1,h2')?.innerText||'Nội dung slide');
+ const eyebrow=cleanNarrationText(slide.querySelector('.eyebrow')?.innerText||'');
+ const index=slides.indexOf(slide);
  const parts=[];
  if(eyebrow) parts.push(eyebrow+'.');
- parts.push('Tiếp theo, chúng ta cùng tìm hiểu: '+cleanNarrationText(title)+'.');
+ if(narrationOpeners[index]) parts.push(narrationOpeners[index]);
+ parts.push('Sau đây là những nội dung chính của slide '+(index+1)+':');
  slide.querySelectorAll('.lead, .copy > p, :scope > p:not(.date):not(.navhint):not(.quote), .facts li, .cards .card, .quote').forEach(el=>{
    if(el.closest('.narration-panel')) return;
    let t=cleanNarrationText(el.innerText);
@@ -155,8 +191,8 @@ function buildNarration(slide){
    if(el.classList.contains('card')){const b=el.querySelector('b');if(b){const label=cleanNarrationText(b.innerText);t=label+': '+cleanNarrationText(el.innerText.replace(b.innerText,''));}}
    parts.push(t);
  });
- slide.querySelectorAll('.visual .caption').forEach(el=>{const t=cleanNarrationText(el.innerText);if(t)parts.push('Về hình ảnh minh họa: '+t);});
- parts.push('Qua slide này, chúng ta có thể thấy những sự kiện và nhân vật lịch sử đã góp phần tạo nên tiến trình phát triển của Việt Nam.');
+ slide.querySelectorAll('.visual .caption').forEach(el=>{const t=cleanNarrationText(el.innerText);if(t)parts.push('Hình ảnh minh họa: '+t);});
+ parts.push('Lịch sử nhắc chúng ta rằng độc lập, hòa bình và bản sắc dân tộc là những giá trị cần được trân trọng. Hiểu quá khứ để tự tin bước tới tương lai, bằng tri thức, lòng nhân ái và trách nhiệm với quê hương Việt Nam.');
  return parts.join(' ');
 }
 function stopNarration(){autoPresentation=false;if('speechSynthesis' in window){window.speechSynthesis.cancel();}activeUtterance=null;document.querySelectorAll('.narration-status').forEach(el=>el.textContent='Đã dừng thuyết minh.');}
