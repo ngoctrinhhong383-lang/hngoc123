@@ -129,7 +129,7 @@ body{font-size:17px;line-height:1.75}
 </main><footer><span>HỒNG NGỌC · BÀI THUYẾT TRÌNH LỊCH SỬ VIỆT NAM</span><span>← → điều hướng · F toàn màn hình</span></footer>
 <script>
 const slides=[...document.querySelectorAll('.slide')];let i=0;
-function show(n,fromAuto=false){if(typeof stopNarration==='function'&&!fromAuto)stopNarration();i=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle('active',k===i));document.getElementById('counter').textContent=(i+1)+' / '+slides.length;document.getElementById('bar').style.width=((i+1)/slides.length*100)+'%';history.replaceState(null,'','#slide-'+(i+1));if(typeof updateNarrationPanel==='function'&&(fromAuto||slides[i].querySelector('.narration-panel')))updateNarrationPanel();}
+function show(n,fromAuto=false){const continueAuto=autoPresentation&&!fromAuto;if(continueAuto&&'speechSynthesis'in window){window.speechSynthesis.cancel();activeUtterance=null;}else if(typeof stopNarration==='function'&&!fromAuto)stopNarration();i=Math.max(0,Math.min(slides.length-1,n));slides.forEach((s,k)=>s.classList.toggle('active',k===i));document.getElementById('counter').textContent=(i+1)+' / '+slides.length;document.getElementById('bar').style.width=((i+1)/slides.length*100)+'%';history.replaceState(null,'','#slide-'+(i+1));if(typeof updateNarrationPanel==='function'&&(fromAuto||continueAuto||slides[i].querySelector('.narration-panel')))updateNarrationPanel();if(continueAuto)setTimeout(()=>speakCurrentSlide(true),350);}
 document.getElementById('prev').onclick=()=>show(i-1);document.getElementById('next').onclick=()=>show(i+1);
 document.getElementById('full').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
 document.addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1)}if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();show(i-1)}if(e.key.toLowerCase()==='f')document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();if(e.key==='Home')show(0);if(e.key==='End')show(slides.length-1)});
@@ -195,7 +195,7 @@ function buildNarration(slide){
  parts.push('Lịch sử nhắc chúng ta rằng độc lập, hòa bình và bản sắc dân tộc là những giá trị cần được trân trọng. Hiểu quá khứ để tự tin bước tới tương lai, bằng tri thức, lòng nhân ái và trách nhiệm với quê hương Việt Nam.');
  return parts.join(' ');
 }
-function stopNarration(){autoPresentation=false;if('speechSynthesis' in window){window.speechSynthesis.cancel();}activeUtterance=null;document.querySelectorAll('.narration-status').forEach(el=>el.textContent='Đã dừng thuyết minh.');}
+function stopNarration(){autoPresentation=false;const topButton=document.getElementById('narrate');if(topButton)topButton.textContent='🎙 Thuyết minh';if('speechSynthesis' in window){window.speechSynthesis.cancel();}activeUtterance=null;document.querySelectorAll('.narration-status').forEach(el=>el.textContent='Đã dừng thuyết minh.');}
 function updateNarrationPanel(){
  const slide=slides[i];if(!slide)return;
  let panel=slide.querySelector('.narration-panel');
@@ -215,10 +215,10 @@ function speakCurrentSlide(autoRun=false){
  utterance.lang='vi-VN';utterance.rate=0.95;utterance.pitch=1;activeUtterance=utterance;
  utterance.onstart=()=>panel.querySelector('.narration-status').textContent='Đang đọc thuyết minh…';
  utterance.onend=()=>{panel.querySelector('.narration-status').textContent='Đã đọc xong slide này.';activeUtterance=null;if(autoRun){if(i<slides.length-1){show(i+1,true);setTimeout(()=>speakCurrentSlide(true),500);}else{autoPresentation=false;panel.querySelector('.narration-status').textContent='🎉 Đã thuyết minh hết toàn bộ slide.';}}};
- utterance.onerror=()=>{panel.querySelector('.narration-status').textContent='Không thể phát âm thanh. M có thể đọc phần thuyết minh hiển thị bên trên.';activeUtterance=null;autoPresentation=false;};
+ utterance.onerror=(event)=>{activeUtterance=null;if(event&&event.error==='canceled')return;panel.querySelector('.narration-status').textContent='Không thể phát âm thanh. M có thể đọc phần thuyết minh hiển thị bên trên.';autoPresentation=false;};
  window.speechSynthesis.speak(utterance);
 }
-narrationButton.addEventListener('click',()=>{const panel=slides[i].querySelector('.narration-panel');if(!panel){updateNarrationPanel();}const p=slides[i].querySelector('.narration-panel');p.classList.toggle('open');if(p.classList.contains('open'))p.scrollIntoView({behavior:'smooth',block:'nearest'});});
+narrationButton.addEventListener('click',()=>{if(autoPresentation){stopNarration();narrationButton.textContent='🎙 Thuyết minh';return;}autoPresentation=true;updateNarrationPanel();const p=slides[i].querySelector('.narration-panel');p.classList.add('open');narrationButton.textContent='■ Dừng thuyết minh';p.scrollIntoView({behavior:'smooth',block:'nearest'});speakCurrentSlide(true);});
 
 // Image loading: preserve the subject-specific source; never substitute an unrelated generic photo.
 document.querySelectorAll('.visual img').forEach((img)=>{
